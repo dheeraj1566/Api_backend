@@ -1,0 +1,56 @@
+import express from 'express';
+import cors from 'cors';
+import mongoose, { Schema } from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const port = 4000;
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const username = process.env.MONGO_USERNAME;
+const password = encodeURIComponent(process.env.MONGO_PASSWORD);
+
+mongoose.connect(
+  'mongodb+srv://dheerajjangid013:dheeraj@cluster0.tgir6dc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
+).then(() => {
+  console.log('Connected to MongoDB');
+}).catch((error) => {
+  console.error('MongoDB connection error', error);
+});
+
+const productSchema = new Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  price: {
+    type: Number,
+    required: true
+  }
+});
+
+const Product = mongoose.model('Product', productSchema);
+
+app.post('/post', async (req, res) => {
+  try {
+    const { name, description, price } = req.body;
+    const product = new Product({ name, description, price });
+    await product.save();
+    console.log(product)
+    res.json({ message: 'Product added successfully' });
+  } catch (err) {
+    console.log(err, 'error');
+    res.status(500).json({ error: 'Failed to add product' });
+  }
+});
+
+app.listen(port, () => console.log('Server running on port ${port}'));
