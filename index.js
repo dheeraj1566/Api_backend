@@ -26,36 +26,36 @@ const password = encodeURIComponent(process.env.MONGO_PASSWORD);
         api_secret: '6i-CTn9dLM6qy5zr5Dejw7fxnhs' // Click 'View Credentials' below to copy your API secret
     });
     
-    // // Upload an image
-    //  const uploadResult = await cloudinary.uploader
-    //    .upload(
-    //        'https://res.cloudinary.com/dhawap1lt/image/upload/v1721383781/rohit_sir_nzcb9f.jpg', {
-    //            public_id: 'sir',
-    //        }
-    //    )
-    //    .catch((error) => {
-    //        console.log(error);
-    //    });
+    // Upload an image
+     const uploadResult = await cloudinary.uploader
+       .upload(
+           'https://res.cloudinary.com/dhawap1lt/image/upload/v1721383781/rohit_sir_nzcb9f.jpg', {
+               public_id: 'sir',
+           }
+       )
+       .catch((error) => {
+           console.log(error);
+       });
     
-    // console.log(uploadResult);
+    console.log(uploadResult);
     
-    // // Optimize delivery by resizing and applying auto-format and auto-quality
-    // const optimizeUrl = cloudinary.url('sir', {
-    //     fetch_format: 'auto',
-    //     quality: 'auto'
-    // });
+    // Optimize delivery by resizing and applying auto-format and auto-quality
+    const optimizeUrl = cloudinary.url('sir', {
+        fetch_format: 'auto',
+        quality: 'auto'
+    });
     
-    // console.log(optimizeUrl);
+    console.log(optimizeUrl);
     
     // Transform the image: auto-crop to square aspect_ratio
-    // const autoCropUrl = cloudinary.url('sir', {
-    //     crop: 'auto',
-    //     gravity: 'auto',
-    //     width: 500,
-    //     height: 500,
-    // });
+    const autoCropUrl = cloudinary.url('sir', {
+        crop: 'auto',
+        gravity: 'auto',
+        width: 500,
+        height: 500,
+    });
     
-    // console.log(autoCropUrl);    
+    console.log(autoCropUrl);    
 })();
 
 mongoose.connect(
@@ -100,13 +100,22 @@ const Product = mongoose.model('Product', productSchema);
 // });
 app.get('/products', async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().select(["-__v", "-_id"]);
     res.json(products);
-  } catch (err) {
-    console.log(err, 'error');
-    res.status(500).json({ error: 'Failed to fetch products' });
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({ error: 'Failed' });
   }
 });
+// app.get('/products', async (req, res) => {
+//   try {
+//     const products = await Product.find();
+//     res.json(products);
+//   } catch (err) {
+//     console.log(err, 'error');
+//     res.status(500).json({ error: 'Failed to fetch products' });
+//   }
+// });
 
 
 
