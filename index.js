@@ -89,6 +89,9 @@ const productSchema = new Schema({
 
 const Product = mongoose.model('Product', productSchema);
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Product API');
+});
 
 app.post('/post', async (req, res) => {
   try {
