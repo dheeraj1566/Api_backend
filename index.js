@@ -89,13 +89,23 @@ const productSchema = new Schema({
 
 const Product = mongoose.model('Product', productSchema);
 
-app.get('/prod', async (req, res) => {
+// app.get('/prod', async (req, res) => {
+//   try {
+//     const products = await Product.find().select(["description", "name","price","image"]);
+//     res.json(products);
+//   } catch (error) {
+//     console.error('Error', error);
+//     res.status(500).json({ error: 'Failed' });
+//   }
+// });
+
+app.get('/products', async (req, res) => {
   try {
-    const products = await Product.find().select(["description", "name","price","image"]);
+    const products = await Product.find();
     res.json(products);
-  } catch (error) {
-    console.error('Error', error);
-    res.status(500).json({ error: 'Failed' });
+  } catch (err) {
+    console.log(err, 'error');
+    res.status(500).json({ error: 'Failed to fetch products' });
   }
 });
 
