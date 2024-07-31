@@ -89,9 +89,16 @@ const productSchema = new Schema({
 
 const Product = mongoose.model('Product', productSchema);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Product API');
+app.get('/prod', async (req, res) => {
+  try {
+    const products = await Product.find().select(["description", "name","price","image"]);
+    res.json(products);
+  } catch (error) {
+    console.error('Error', error);
+    res.status(500).json({ error: 'Failed' });
+  }
 });
+
 
 app.post('/post', async (req, res) => {
   try {
