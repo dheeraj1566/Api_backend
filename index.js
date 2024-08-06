@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose, { Schema } from 'mongoose';
-import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -16,48 +15,6 @@ app.use(express.urlencoded({ extended: true }));
 const username = process.env.MONGO_USERNAME;
 const password = encodeURIComponent(process.env.MONGO_PASSWORD);
 
-
-(async function() {
-
-    // Configuration
-    cloudinary.config({ 
-        cloud_name: 'dhawap1lt', 
-        api_key: '157466517636747', 
-        api_secret: '6i-CTn9dLM6qy5zr5Dejw7fxnhs' // Click 'View Credentials' below to copy your API secret
-    });
-    
-    // Upload an image
-     const uploadResult = await cloudinary.uploader
-       .upload(
-           'https://res.cloudinary.com/dhawap1lt/image/upload/v1721383781/rohit_sir_nzcb9f.jpg', {
-               public_id: 'sir',
-           }
-       )
-       .catch((error) => {
-           console.log(error);
-       });
-    
-    console.log(uploadResult);
-    
-    // Optimize delivery by resizing and applying auto-format and auto-quality
-    const optimizeUrl = cloudinary.url('sir', {
-        fetch_format: 'auto',
-        quality: 'auto'
-    });
-    
-    console.log(optimizeUrl);
-    
-    // Transform the image: auto-crop to square aspect_ratio
-    const autoCropUrl = cloudinary.url('sir', {
-        crop: 'auto',
-        gravity: 'auto',
-        width: 500,
-        height: 500,
-    });
-    
-    console.log(autoCropUrl);    
-})();
-
 mongoose.connect(
   'mongodb+srv://dheerajjangid013:dheeraj@cluster0.tgir6dc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
 ).then(() => {
@@ -67,6 +24,10 @@ mongoose.connect(
 });
 
 const productSchema = new Schema({
+  id:{
+    type:Number,
+    required:true
+  },
   name: {
     type: String,
     required: true
@@ -82,22 +43,12 @@ const productSchema = new Schema({
   image: {
 
     type:String,
-    required: true
+    required:true,
   }
 
 });
-
 const Product = mongoose.model('Product', productSchema);
 
-// app.get('/prod', async (req, res) => {
-//   try {
-//     const products = await Product.find()
-//     res.json(products);
-//   } catch (error) {
-//     console.error('Error', error);
-//     res.status(500).json({ error: 'Failed' });
-//   }
-// });
 app.get('/products', async (req, res) => {
   try {
     const products = await Product.find().select(["-__v", "-_id"]);
@@ -107,22 +58,11 @@ app.get('/products', async (req, res) => {
     res.status(500).json({ error: 'Failed' });
   }
 });
-// app.get('/products', async (req, res) => {
-//   try {
-//     const products = await Product.find();
-//     res.json(products);
-//   } catch (err) {
-//     console.log(err, 'error');
-//     res.status(500).json({ error: 'Failed to fetch products' });
-//   }
-// });
-
-
 
 app.post('/post', async (req, res) => {
   try {
-    const { name, description, price,image } = req.body;
-    const product = new Product({ name, description, price, image });
+    const {id, name, description, price,image } = req.body;
+    const product = new Product({ id,name, description, price, image });
     await product.save();
     console.log(product)
     res.json({ message: 'Product added successfully' });
@@ -131,5 +71,17 @@ app.post('/post', async (req, res) => {
     res.status(500).json({ error: 'Failed to add product' });
   }
 });
-
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findByIdAndDelete(id);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    res.json({ message: 'Product deleted successfully' });
+  } catch (err) {
+    console.log(err, 'error');
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
 app.listen(port, () => console.log('Server running on port ${port}'));
