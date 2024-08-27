@@ -24,10 +24,9 @@ mongoose.connect(
 });
 
 const productSchema = new Schema({
-  id:{
-    type:Number,
-    required:true
-  },
+  id: { type: Number,
+     unique: true 
+    },
   name: {
     type: String,
     required: true
@@ -48,6 +47,17 @@ const productSchema = new Schema({
 
 });
 const Product = mongoose.model('Product', productSchema);
+
+/////////////////
+// const  getNextId = async () => {
+//   const lastProduct = await Product.findOne().sort({ id: -1 });
+//   return lastProduct ? lastProduct.id + 1 : 1;
+// };
+
+///////////////
+
+
+
 
 app.get('/products', async (req, res) => {
   try {
@@ -71,6 +81,8 @@ app.post('/post', async (req, res) => {
     res.status(500).json({ error: 'Failed to add product' });
   }
 });
+
+
 app.delete('/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
